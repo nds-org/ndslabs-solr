@@ -23,10 +23,16 @@ if [[ "$1" = 'solr' ]]; then
         esac
         echo
     done
-	 
-    /opt/solr/bin/solr -f &
+     
+    if [ ! -f "/opt/solr/data/solr" ]; then 
+        echo "Initializing directory /opt/solr/data"
+        mkdir -p /opt/solr/data
+        chmod -R a+w /opt/solr/data
+        cp -r /opt/solr/server/solr /opt/solr/data
+    fi
+    /opt/solr/bin/solr start -f -s /opt/solr/data/solr &
 
-	echo "Waiting for solr"
+    echo "Waiting for solr"
     wait_seconds=${WAIT_SECONDS:-5}
     if ! /opt/docker-solr/scripts/wait-for-solr.sh "$max_try" "$wait_seconds"; then
         echo "Could not start Solr."
@@ -37,12 +43,13 @@ if [[ "$1" = 'solr' ]]; then
         exit 1
     fi
 
-	if [ -n "$CORE_NAME" ]; then 
-      if [ -f "/opt/solr/server/solr/$CORE_NAME" ]; then
+    if [ -n "$CORE_NAME" ]; then 
+      ls /opt/solr/data/solr/
+      if [ -d "/opt/solr/data/solr/$CORE_NAME" ]; then
           echo "skipping core creation"
       else
           echo "Creating core $CORE_NAME"
-          /opt/solr/bin/solr create -c $CORE_NAME
+          /opt/solr/bin/solr create_core -c $CORE_NAME 
 
           # See https://github.com/docker-solr/docker-solr/issues/27
           echo "Checking core"
@@ -53,7 +60,8 @@ if [[ "$1" = 'solr' ]]; then
           echo "Created core $CORE_NAME"
       fi
     fi
-	wait
+    wait
+	echo "Exiting"
 else 
   exec "$@"
 fi
