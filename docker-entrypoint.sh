@@ -61,18 +61,19 @@ if [[ "$1" = 'solr' ]]; then
           echo "Created core $CORE_NAME"
       fi
 
-	  # Assumes files are in solr/conf
-  	  if [ -n "$CONFIG_REPO" ]; then
+      # Assumes files are in solr/conf
+      if [ -n "$CONFIG_REPO" ]; then
 
-		  # https://github.com/nds-org/ndslabs-hydra/trunk/solr/conf
-		  cd /opt/solr/data/solr/$CORE_NAME/
-		  svn checkout --force $CONFIG_REPO 
-	      curl "http://localhost:8983/solr/admin/cores?action=RELOAD&core=$CORE_NAME"
+          # https://github.com/nds-org/ndslabs-hydra/trunk/solr/conf
+          rm -rf conf
+          cd /opt/solr/data/solr/$CORE_NAME/
+          svn checkout --force $CONFIG_REPO 
+          curl "http://localhost:8983/solr/admin/cores?action=RELOAD&core=$CORE_NAME"
       fi
     fi
 
     wait
-	echo "Exiting"
+    echo "Exiting"
 else 
   exec "$@"
 fi
