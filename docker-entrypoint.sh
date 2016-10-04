@@ -65,8 +65,8 @@ if [[ "$1" = 'solr' ]]; then
       if [ -n "$CONFIG_REPO" ]; then
 
           # https://github.com/nds-org/ndslabs-hydra/trunk/solr/conf
-          rm -rf conf
           cd /opt/solr/data/solr/$CORE_NAME/
+          rm -rf conf
           svn checkout --force $CONFIG_REPO 
           curl "http://localhost:8983/solr/admin/cores?action=RELOAD&core=$CORE_NAME"
       fi
